@@ -2,14 +2,14 @@ package controllers
 
 import (
 	"fmt"
-	"logging"
+	"github.com/shenshouer/logging"
 	"regexp"
 	"strconv"
 	"strings"
 
 	r "github.com/revel/revel"
 
-	"admin/app/base"
+	"github.com/shenshouer/admin/app/base"
 )
 
 const (

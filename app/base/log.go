@@ -1,7 +1,7 @@
 package base
 
 import (
-	"logging"
+	"github.com/shenshouer/logging"
 )
 
 // 使用外包logging项目中的日志系统

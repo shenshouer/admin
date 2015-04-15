@@ -3,7 +3,7 @@ package controllers
 import (
 	r "github.com/revel/revel"
 
-	"admin/app/base"
+	"github.com/shenshouer/admin/app/base"
 
 	"bytes"
 	"fmt"
