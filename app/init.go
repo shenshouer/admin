@@ -1,6 +1,13 @@
 package app
 
-import "github.com/revel/revel"
+import (
+	"github.com/revel/revel"
+	"github.com/shenshouer/admin/app/base"
+	"github.com/shenshouer/admin/app/models"
+	"github.com/shenshouer/logging"
+)
+
+var logger logging.Logger = base.NewLogger()
 
 func init() {
 	// Filters is the default set of global filters.
@@ -23,6 +30,14 @@ func init() {
 	// ( order dependent )
 	// revel.OnAppStart(InitDB)
 	// revel.OnAppStart(FillCache)
+	revel.OnAppStart(InitApp)
+}
+
+func InitApp() {
+	base.MONGO_DATABASE = revel.Config.StringDefault("mgo.use_database", "")
+	if err := models.Startup(base.MONGO_DATABASE); err != nil {
+		logger.Errorf("InitApp Startup MongoDB err[%v]", err)
+	}
 }
 
 // TODO turn this into revel.HeaderFilter

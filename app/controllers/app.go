@@ -12,7 +12,13 @@ import (
 )
 
 type App struct {
-	*r.Controller
+	Base
+}
+
+func init() {
+	r.InterceptMethod((*App).Before, r.BEFORE)
+	r.InterceptMethod((*App).After, r.AFTER)
+	r.InterceptMethod((*App).Panic, r.PANIC)
 }
 
 func (this App) Index() r.Result {
@@ -20,12 +26,13 @@ func (this App) Index() r.Result {
 }
 
 // 跳转至登录页面
-func (this App) ToLogin() r.Result {
-	return this.RenderTemplate("App/login.html")
+func (this *App) ToLogin() r.Result {
+	//return this.RenderTemplate("App/login.html")
+	return this.Render()
 }
 
 // 获取验证码
-func (this App) GetSecurityCode(timestamp int64) r.Result {
+func (this *App) GetSecurityCode(timestamp int64) r.Result {
 	// 时间戳参数，第一次加载为1，后续加载为当前的时间戳，可以用来验证客户端刷新频率
 	// 如：刷新频率过高，直接限制当前客户端等
 	//fmt.Println("GetSecurityCode", timestamp)
@@ -50,7 +57,7 @@ func (this App) GetSecurityCode(timestamp int64) r.Result {
 }
 
 // 登陆验证
-func (this App) Login() r.Result {
+func (this *App) Login() r.Result {
 	// 从请求参数中获取当前的请求表单值
 	username := this.Params.Get("username")
 	password := this.Params.Get("password")
@@ -71,13 +78,12 @@ func (this App) Login() r.Result {
 	return nil
 }
 
-func (this App) Logout() r.Result {
+func (this *App) Logout() r.Result {
 	// 清除当前用户的信息
 	//strId := this.Session[CSessionRole]
 
 	for k := range this.Session {
 		delete(this.Session, k)
 	}
-
 	return this.Redirect(App.Index)
 }

@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/shenshouer/logging"
+
 	"regexp"
 	"strconv"
 	"strings"
@@ -10,6 +10,7 @@ import (
 	r "github.com/revel/revel"
 
 	"github.com/shenshouer/admin/app/base"
+	"github.com/shenshouer/logging"
 )
 
 const (

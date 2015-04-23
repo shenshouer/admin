@@ -42,7 +42,7 @@ type (
 
 // 启动，携带管理器到运行时状态
 func Startup(sessionId string) (err error) {
-	logger.Infoln("Startup", sessionId, "Startup")
+	logger.Infof("Startup sessionId[%s]", sessionId)
 
 	// 创建 Mongo Manager
 	_This = &mongoManager{
@@ -50,12 +50,12 @@ func Startup(sessionId string) (err error) {
 	}
 
 	// 日志输出mongodb的链接信息
-	logger.Infoln(sessionId, "Startup", "MongoDB : Addr[%s]", revel.Config.StringDefault("mgo.host", ""))
-	logger.Infoln(sessionId, "Startup", "MongoDB : Database[%s]", revel.Config.StringDefault("mgo.database", ""))
-	logger.Infoln(sessionId, "Startup", "MongoDB : Username[%s]", revel.Config.StringDefault("mgo.username", ""))
+	logger.Infof("MongoDB : Addr[%s]", revel.Config.StringDefault("mgo.host", ""))
+	logger.Infof("MongoDB : Database[%s]", revel.Config.StringDefault("mgo.database", ""))
+	logger.Infof("MongoDB : Username[%s]", revel.Config.StringDefault("mgo.username", ""))
 
 	hosts := strings.Split(revel.Config.StringDefault("mgo.host", ""), ",")
-
+	fmt.Print("==============>> ", hosts)
 	// 创建强连接与不变连接session
 	err = CreateSession(sessionId,
 		"strong",
@@ -64,6 +64,10 @@ func Startup(sessionId string) (err error) {
 		revel.Config.StringDefault("mgo.database", ""),
 		revel.Config.StringDefault("mgo.username", ""),
 		revel.Config.StringDefault("mgo.password", ""))
+
+	if err != nil {
+		logger.Errorf("Startup Monogodb err[%v]", err)
+	}
 
 	err = CreateSession(sessionId,
 		"monotonic",
@@ -74,6 +78,10 @@ func Startup(sessionId string) (err error) {
 		revel.Config.StringDefault("mgo.password", ""))
 
 	logger.Infoln("Startup", sessionId, "Completed")
+
+	if err != nil {
+		logger.Errorf("Startup Monogodb err[%v]", err)
+	}
 	return err
 }
 
@@ -91,7 +99,7 @@ func Shutdown(sessionId string) (err error) {
 
 // CreateSession 创建一个可供使用的连接池
 func CreateSession(sessionId string, mode string, sessionName string, hosts []string, databaseName string, username string, password string) (err error) {
-	logger.Infoln(sessionId, fmt.Sprintf("CreateSession", "Mode[%s] SessionName[%s] Hosts[%s] DatabaseName[%s] Username[%s]", mode, sessionName, hosts, databaseName, username))
+	logger.Infof("CreateSession Mode[%s] SessionName[%s] sessionId[%s] Hosts[%s] DatabaseName[%s] Username[%s]", mode, sessionName, sessionId, hosts, databaseName, username)
 
 	// 创建数据库连接对象
 	mongoSession := &mongoSession{
@@ -103,7 +111,7 @@ func CreateSession(sessionId string, mode string, sessionName string, hosts []st
 			Password: password,
 		},
 	}
-
+	fmt.Println("===========>> mongoSession ", mongoSession.mongoDBDialInfo)
 	// 创建主session
 	mongoSession.mongoSession, err = mgo.DialWithInfo(mongoSession.mongoDBDialInfo)
 	if err != nil {
@@ -151,7 +159,7 @@ func CopyMonotonicSession(sessionId string) (*mgo.Session, error) {
 
 // CopySession 复制一个具体的session给客户端使用
 func CopySession(sessionId string, useSession string) (mongoSession *mgo.Session, err error) {
-	logger.Infoln(sessionId, "CopySession", fmt.Sprintf("UseSession[%s]", useSession))
+	logger.Infof("CopySession UseSession[%s] sessionId[%s]", useSession, sessionId)
 
 	session := _This.sessions[useSession]
 
@@ -179,7 +187,7 @@ func CloneMonotonicSession(sessionId string) (*mgo.Session, error) {
 
 // CloneSession 克隆
 func CloneSession(sessionId string, useSession string) (mongoSession *mgo.Session, err error) {
-	logger.Infoln(sessionId, "CloneSession", fmt.Sprintf("UseSession[%s]", useSession))
+	logger.Infof("CloneSession UseSession[%s] sessionId[%s]", useSession, sessionId)
 
 	// 查找session对象
 	session := _This.sessions[useSession]
@@ -197,7 +205,7 @@ func CloneSession(sessionId string, useSession string) (mongoSession *mgo.Sessio
 
 // CloseSession 将连接归还到连接池
 func CloseSession(sessionId string, mongoSession *mgo.Session) {
-	logger.Infoln(sessionId, "CloseSession")
+	logger.Infof("CloseSession sessionId[%s]", sessionId)
 
 	mongoSession.Close()
 }
@@ -236,7 +244,7 @@ func ToString(queryMap bson.M) string {
 
 // Execute MongoDB 的 literal 功能
 func Execute(sessionId string, mongoSession *mgo.Session, databaseName string, collectionName string, mongoCall MongoCall) (err error) {
-	logger.Infoln(sessionId, "Execute", fmt.Sprintf("Database[%s] Collection[%s]", databaseName, collectionName))
+	logger.Infof("Execute Database[%s] Collection[%s] sessionId[%s]", databaseName, collectionName, sessionId)
 
 	// 获取一个具体的collection
 	collection, err := GetCollection(mongoSession, databaseName, collectionName)
